@@ -2,3 +2,5 @@ yolov8m.pt
 training/football-players-detection-1
 runs
 input_videos
+output_videos
+__pycache__
