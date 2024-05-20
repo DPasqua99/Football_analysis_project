@@ -1,6 +1,7 @@
 from utils import save_video, read_video
 from trackers import Tracker
 import cv2
+import numpy as np
 from team_assigner import TeamAssigner
 from player_ball_assigner import PlayerBallAssigner
 
@@ -33,12 +34,17 @@ def main():
 
     # Assign ball acquisition
     player_assigner = PlayerBallAssigner()
+    team_possess = []
     for frame_num, player_track in enumerate(tracks['players']):
         ball_bbox = tracks[frame_num][1]['bbox']
         assigned_player = player_assigner.assign_ball_to_player(player_track, ball_bbox)
 
         if assigned_player != -1:
             tracks['players'][frame_num][assigned_player]['has_ball'] = True
+            team_possess.append(track['players'][frame_num][assigned_player]['team'])
+        else:
+            team_possess.append(team_possess[-1])
+    team_possess = np.array(team_possess)
 
     # Save cropped image of a player
     
@@ -56,7 +62,7 @@ def main():
 
     # Draw output
     ## Draw object Tracks
-    output_video_frames = tracker.draw_annotations(video_frames, tracks)
+    output_video_frames = tracker.draw_annotations(video_frames, tracks, team_possess)
 
     # save video
     save_video(output_video_frames, 'output_videos/output_video.avi')
